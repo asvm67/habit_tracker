@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Мои привычки{% endblock %}
+{% block content %}
+
+<form class="d-flex mb-4" method="get" action="{{ url_for('habits.index') }}">
+    <input type="text" name="q" class="form-control me-2" placeholder="Поиск по названию..." value="{{ query }}">
+    <button class="btn btn-outline-success" type="submit">Найти</button>
+    {% if query %}
+        <a href="{{ url_for('habits.index') }}" class="btn btn-outline-secondary ms-2">Сброс</a>
+    {% endif %}
+</form>
+
+{% if not habits %}
+    <div class="text-center text-muted py-5">
+        {% if query %}
+            <p>По запросу «{{ query }}» ничего не найдено.</p>
+        {% else %}
+            <p>Пока нет ни одной привычки.</p>
+            <a class="btn btn-success" href="{{ url_for('habits.new_habit') }}">Добавить первую привычку</a>
+        {% endif %}
+    </div>
+{% else %}
+    <div class="row g-3">
+        {% for item in habits %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a href="{{ url_for('habits.habit_detail', habit_id=item.habit.id) }}" class="text-decoration-none">
+                            {{ item.habit.name }}
+                        </a>
+                    </h5>
+                    {% if item.habit.description %}
+                        <p class="card-text text-muted small">{{ item.habit.description }}</p>
+                    {% endif %}
+
+                    <div class="progress mb-2" style="height: 10px;">
+                        <div class="progress-bar bg-success" style="width: {{ item.percent }}%;"></div>
+                    </div>
+                    <p class="small text-muted mb-2">
+                        Сегодня: {{ item.count_today }} / {{ item.habit.target_count }}
+                    </p>
+
+                    <form method="post" action="{{ url_for('habits.log_habit', habit_id=item.habit.id) }}">
+                        <button type="submit" class="btn btn-sm btn-success">✓ Отметить выполнение</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% endblock %}
